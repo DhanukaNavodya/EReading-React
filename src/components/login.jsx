@@ -51,6 +51,9 @@ function Login() {
 
           // Show success message and redirect to the home page
           Swal.fire('Success', 'Login successful!', 'success').then(() => {
+            // Store user details in localStorage
+          localStorage.setItem('loggedInUser', JSON.stringify(userData));
+
             navigate('/home'); // Navigate to home page after login
           });
         }
@@ -69,7 +72,7 @@ function Login() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen p-6">
+    <div className="flex items-center justify-center min-h-screen pl-60">
       <div className="flex flex-col md:flex-row max-w-4xl w-full bg-white p-6 border rounded-lg shadow-lg">
         {/* Login Form */}
         <div className="w-full md:w-1/2 p-4">

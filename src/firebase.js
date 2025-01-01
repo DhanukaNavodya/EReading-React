@@ -1,20 +1,25 @@
 // firebase.js
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc ,updateDoc,query,where  } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, query, where } from 'firebase/firestore';
+import { getStorage } from 'firebase/storage';
 
+// Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyCZrY0W_lszNwy25VTjzgAItwRoixG-fAY",
-  authDomain: "to-do-app-14e10.firebaseapp.com",
-  projectId: "to-do-app-14e10",
-  storageBucket: "to-do-app-14e10.firebasestorage.app",
-  messagingSenderId: "1024207391785",
-  appId: "1:1024207391785:web:c25eab7fcf55f2e548e038",
-  measurementId: "G-9SK3E8PMM5"
+  apiKey: "AIzaSyCmzZ28AeSxVHo9NTeANiM-l-DRAQoc45s",
+  authDomain: "ereading-e5931.firebaseapp.com",
+  projectId: "ereading-e5931",
+  storageBucket: "ereading-e5931.firebasestorage.app",
+  messagingSenderId: "172534545379",
+  appId: "1:172534545379:web:2a692d37fd9402d902bed6",
+  measurementId: "G-0QJCV41S6R"
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
 
-// Get Firestore instance
-export { db, collection, addDoc, getDocs, deleteDoc, doc,updateDoc,query,where  };
+// Get Firestore and Storage instances
+const db = getFirestore(app);
+const storage = getStorage(app);
+
+// Export Firestore functions and instances
+export { db, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, query, where, storage };

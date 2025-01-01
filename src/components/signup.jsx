@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { db, collection, addDoc } from '../firebase'; // Import Firestore functions
 import Swal from 'sweetalert2'; // For popups
-import SignUp from '../images/signup.jpg'
+import SignUp from '../images/signup.jpg';
 
 function Signup() {
   const [userDetails, setUserDetails] = useState({
@@ -9,6 +9,8 @@ function Signup() {
     email: '',
     password: '',
     confirmPassword: '',
+    address: '', // Added address field
+    contactNo: '', // Added contactNo field
   }); // State to store user inputs
   const [loading, setLoading] = useState(false); // State to manage loading state
 
@@ -24,7 +26,7 @@ function Signup() {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { username, email, password, confirmPassword } = userDetails;
+    const { username, email, password, confirmPassword, address, contactNo } = userDetails;
 
     if (password !== confirmPassword) {
       Swal.fire('Error', 'Passwords do not match!', 'error');
@@ -35,10 +37,13 @@ function Signup() {
       setLoading(true);
 
       // Add user to Firestore
-      await addDoc(collection(db, 'users'), {
+      const userRef = collection(db, 'users');
+      await addDoc(userRef, {
         username,
         email,
         password, // Consider hashing the password before saving
+        address,
+        contactNo,
       });
 
       Swal.fire('Success', 'User registered successfully!', 'success');
@@ -47,10 +52,12 @@ function Signup() {
         email: '',
         password: '',
         confirmPassword: '',
+        address: '', // Reset address field
+        contactNo: '', // Reset contactNo field
       });
     } catch (error) {
       console.error("Error adding document: ", error);
-      Swal.fire('Error', 'An error occurred while signing up. Please try again.', 'error');
+      Swal.fire('Error', `An error occurred: ${error.message}`, 'error');
     } finally {
       setLoading(false);
     }
@@ -88,6 +95,33 @@ function Signup() {
                 className="w-full p-3 mt-2 border rounded-md"
               />
             </div>
+            {/* Address Field */}
+            <div className="mb-4">
+              <label htmlFor="address" className="block text-gray-700">Address</label>
+              <input
+                type="text"
+                id="address"
+                name="address"
+                value={userDetails.address}
+                onChange={handleInputChange}
+                required
+                className="w-full p-3 mt-2 border rounded-md"
+              />
+            </div>
+
+            {/* Contact Number Field */}
+            <div className="mb-4">
+              <label htmlFor="contactNo" className="block text-gray-700">Contact Number</label>
+              <input
+                type="text"
+                id="contactNo"
+                name="contactNo"
+                value={userDetails.contactNo}
+                onChange={handleInputChange}
+                required
+                className="w-full p-3 mt-2 border rounded-md"
+              />
+            </div>
 
             <div className="mb-4">
               <label htmlFor="password" className="block text-gray-700">Password</label>
@@ -114,6 +148,8 @@ function Signup() {
                 className="w-full p-3 mt-2 border rounded-md"
               />
             </div>
+
+            
 
             <button
               type="submit"
