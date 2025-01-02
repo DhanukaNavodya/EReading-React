@@ -1,45 +1,40 @@
 import React, { useState, useEffect } from 'react';
-import { db, collection, getDocs } from '../firebase'; // Import Firestore functions
-import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
+import { db, collection, getDocs } from '../firebase'; // Firestore imports
+import { useNavigate } from 'react-router-dom'; // For navigation
 
 const BookList = () => {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate(); // Initialize navigate function
+  const navigate = useNavigate();
+
+  // Retrieve logged-in user's email from localStorage
+  const loggedInUserEmail = JSON.parse(localStorage.getItem('loggedInUser'))?.email;
 
   useEffect(() => {
     const loadBooks = async () => {
       setLoading(true);
       try {
-        const querySnapshot = await getDocs(collection(db, 'books')); // Get books from Firestore
-        const booksData = [];
-        querySnapshot.forEach((doc) => {
-          booksData.push({ id: doc.id, ...doc.data() });
-        });
-        setBooks(booksData); // Set the books state
+        const querySnapshot = await getDocs(collection(db, 'books'));
+        const booksData = querySnapshot.docs
+          .map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }))
+          .filter((book) => book.userEmail === loggedInUserEmail); // Filter books based on the user's email
+        setBooks(booksData);
       } catch (error) {
-        console.error('Error fetching books from Firebase:', error);
+        console.error('Error fetching books:', error);
       } finally {
         setLoading(false);
       }
     };
 
     loadBooks();
-  }, []);
+  }, [loggedInUserEmail]); // Depend on loggedInUserEmail to trigger effect when the user email changes
 
   const renderStars = (rating) => {
-    if (!rating) {
-      return Array(5)
-        .fill(0)
-        .map((_, index) => (
-          <span key={index} className="text-gray-300">
-            ☆
-          </span>
-        ));
-    }
-
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating - fullStars >= 0.5;
+    const fullStars = Math.floor(rating || 0);
+    const hasHalfStar = (rating || 0) - fullStars >= 0.5;
     const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
 
     return (
@@ -68,7 +63,11 @@ const BookList = () => {
   };
 
   const handleBookClick = (book) => {
-    navigate(`/book/${book.id}`, { state: { book } }); // Navigate to book details page with state
+    if (!book) {
+      alert('Book details are missing!');
+      return;
+    }
+    navigate(`/savedbook/${book.id}`, { state: { book } });
   };
 
   const renderBooks = (bookList) =>
@@ -76,20 +75,22 @@ const BookList = () => {
       <div
         key={book.id}
         className="border p-4 rounded group relative overflow-hidden cursor-pointer transform transition-all hover:scale-105"
-        onClick={() => handleBookClick(book)} // Handle book click to navigate
+        onClick={() => handleBookClick(book)}
       >
         <img
-          src={book.image}
-          alt={book.title}
+          src={book.image || '/path/to/default/image.jpg'}
+          alt={book.title || 'No title available'}
           className="mb-4 w-full h-64 object-cover rounded group-hover:opacity-70 transition-opacity"
         />
         <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex justify-center items-center">
-          <p className="text-white text-lg text-center px-4">{book.description?.slice(0, 100)}...</p>
+          <p className="text-white text-lg text-center px-4">
+            {book.description ? book.description.slice(0, 100) : 'No description available'}...
+          </p>
         </div>
-        <h3 className="text-xl font-semibold mt-4">{book.title}</h3>
+        <h3 className="text-xl font-semibold mt-4">{book.title || 'No title available'}</h3>
         <p className="text-gray-700">{book.author || 'Unknown Author'}</p>
         <div className="text-yellow-500 font-bold flex items-center mt-2">
-          Rating: {renderStars(book.rating)}
+          Rating: {renderStars(book.rating || 0)}
         </div>
       </div>
     ));

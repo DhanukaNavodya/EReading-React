@@ -56,7 +56,7 @@ function Profile() {
           <button
             onClick={() => {
               localStorage.removeItem('loggedInUser');
-              window.location.href = '/login'; // Redirect to login
+              window.location.href = '/'; // Redirect to login
             }}
             className="px-6 py-3 bg-red-500 text-white font-semibold rounded-lg shadow-md transform transition-all hover:bg-red-600 hover:scale-105"
           >

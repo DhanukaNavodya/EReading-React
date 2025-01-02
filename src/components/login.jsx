@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { db, collection, getDocs, query, where } from '../firebase'; // Import Firestore functions
 import { useNavigate } from 'react-router-dom'; // For navigation
 import Swal from 'sweetalert2'; // For popups
 import LoginImg from '../images/login.jpg'
+import { UserContext } from '../context/userContect'; // Import the UserContext
 
 function Login() {
-  const [userDetails, setUserDetails] = useState({
+  const { login } = useContext(UserContext); // Get login function from context
+  const [userDetails, setUserDetailsState] = useState({
     email: '',
     password: '',
   }); // State to store user input
@@ -15,7 +17,7 @@ function Login() {
   // Handle input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setUserDetails((prevDetails) => ({
+    setUserDetailsState((prevDetails) => ({
       ...prevDetails,
       [name]: value,
     }));
@@ -43,18 +45,15 @@ function Login() {
         const userData = doc.data();
         if (userData.password === password) {
           userFound = true;
-          // Store user details in localStorage (you could use sessionStorage as well)
+          // Store user details in localStorage
           localStorage.setItem('loggedInUser', JSON.stringify(userData));
-
-          // Display user details in the console
-          console.log('Logged in user details:', userData);
+          
+          // Use the login function from context to update user state
+          login(userData); // Update user state via context
 
           // Show success message and redirect to the home page
           Swal.fire('Success', 'Login successful!', 'success').then(() => {
-            // Store user details in localStorage
-          localStorage.setItem('loggedInUser', JSON.stringify(userData));
-
-            navigate('/home'); // Navigate to home page after login
+            navigate('/'); // Navigate to home page after login
           });
         }
       });

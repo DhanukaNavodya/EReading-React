@@ -1,6 +1,6 @@
 // firebase.js
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, query, where } from 'firebase/firestore';
+import { getFirestore, collection,getDoc, addDoc, getDocs, deleteDoc, doc, updateDoc, query, where } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
 // Firebase configuration
@@ -22,4 +22,4 @@ const db = getFirestore(app);
 const storage = getStorage(app);
 
 // Export Firestore functions and instances
-export { db, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, query, where, storage };
+export { db, collection, addDoc, getDocs, deleteDoc,getDoc, doc, updateDoc, query, where, storage };

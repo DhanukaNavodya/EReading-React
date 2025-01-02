@@ -1,29 +1,55 @@
-import React from 'react';
-import { useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { FaSave } from 'react-icons/fa';
+import { db } from '../firebase'; // Import the Firebase configuration
+import { collection, addDoc } from 'firebase/firestore';
 
 const BookDetails = () => {
   const location = useLocation();
-  const { book } = location.state; // Get the book details passed via state
+  const { book } = location.state || {}; // Safely access book from state
+  const navigate = useNavigate();
+
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
+    setUser(loggedInUser);
+  }, []);
 
   if (!book) {
-    return <p>No book details available.</p>;
+    return <p className="text-center">No book details available.</p>;
   }
 
-  const { title, authors, description, imageLinks, previewLink } = book.volumeInfo;
+  const { title = 'No title available', authors = [], description = 'No description available', imageLinks, previewLink } = book.volumeInfo || {};
 
-  // Placeholder function for saving the book
-  const handleSaveBook = () => {
-    // Add your API call or database logic here
-    console.log('Book saved to the database:', book);
-    alert('Book saved successfully!');
+  const handleSaveBook = async () => {
+    if (!user) {
+      alert('You must be logged in to save a book');
+      navigate('/'); // Redirect to the login page
+      return;
+    }
+
+    try {
+      await addDoc(collection(db, 'books'), {
+        title,
+        author: authors.length ? authors.join(', ') : 'Unknown',
+        description: description || 'No description available',
+        image: imageLinks?.thumbnail || '',
+        rating: book.volumeInfo.averageRating || 'No rating available',
+        userEmail: user.email, // Store the user email along with the book details
+      });
+      alert('Book saved to Firebase');
+    } catch (error) {
+      console.error('Error saving book', error);
+      alert('Error saving book');
+    }
   };
 
   return (
     <div className="container mx-auto p-4">
       <center>
         <h1 className="text-3xl font-bold mb-4">{title}</h1>
-        <p className="text-xl mb-4">{authors ? authors.join(', ') : 'Unknown Author'}</p>
+        <p className="text-xl mb-4">{authors.length ? authors.join(', ') : 'Unknown Author'}</p>
         {imageLinks?.thumbnail && (
           <img
             src={imageLinks.thumbnail}
@@ -32,7 +58,7 @@ const BookDetails = () => {
           />
         )}
       </center>
-      <p className="text-lg m-10 text-justify text-gray-700">{description || 'No description available.'}</p>
+      <p className="text-lg m-10 text-justify text-gray-700">{description}</p>
       {previewLink && (
         <center>
           <a

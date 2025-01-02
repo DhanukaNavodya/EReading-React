@@ -14,6 +14,16 @@ const Home = () => {
 
   const API_KEY = 'AIzaSyAW5e9vrRNWxWs8TJwf3itAeXp5urrz13E'; // Replace with your Google Books API key
 
+  const [user, setUser] = useState(null);
+  
+    useEffect(() => {
+      const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
+  
+      
+  
+      setUser(loggedInUser);
+    }, []);
+  
   useEffect(() => {
     // Fetch top-rated books when the component loads
     const fetchTopBooks = async () => {
@@ -47,6 +57,12 @@ const Home = () => {
   };
 
   const handleSaveToFirebase = async (book) => {
+    if (!user) {
+      alert('You must be logged in to save a book');
+      navigate('/'); // Redirect to the login page
+      return;
+    }
+
     try {
       await addDoc(collection(db, 'books'), {
         title: book.volumeInfo.title,
@@ -54,6 +70,7 @@ const Home = () => {
         description: book.volumeInfo.description || 'No description available',
         image: book.volumeInfo.imageLinks?.thumbnail || '',
         rating: book.volumeInfo.averageRating || 'No rating available',
+        userEmail: user.email, // Store the user ID with the book details
       });
       alert('Book saved to Firebase');
     } catch (error) {
@@ -76,11 +93,11 @@ const Home = () => {
           </span>
         ));
     }
-  
+
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating - fullStars >= 0.5;
     const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
-  
+
     return (
       <>
         {Array(fullStars)
@@ -105,7 +122,7 @@ const Home = () => {
       </>
     );
   };
-  
+
   const renderBooks = (bookList) =>
     bookList.map((book) => (
       <div
@@ -131,7 +148,7 @@ const Home = () => {
           }}
           className="mt-4 px-4 py-2 bg-green-500 text-white rounded"
         >
-          Save to Firebase
+          Save
         </button>
       </div>
     ));
