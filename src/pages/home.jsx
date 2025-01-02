@@ -156,7 +156,7 @@ const Home = () => {
   return (
     <div className="container mx-auto p-4">
       <div className="text-center justify-center  mb-6">
-        <h1 className="text-3xl font-bold">Book Finder</h1>
+        
       </div>
       <div className={`flex justify-center mb-6 transition-all ${searchFocused ? 'justify-start' : 'justify-center'}`}>
         <input
