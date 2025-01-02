@@ -1,5 +1,8 @@
 EReadings Web Application
 
+First install packages
+>>npm install
+
 To run react web application 
 >>npm start
 
