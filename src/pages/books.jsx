@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { db, collection, getDocs } from '../firebase'; // Firestore imports
-import { useNavigate } from 'react-router-dom'; // For navigation
+import { db, collection, getDocs } from '../firebase'; 
+import { useNavigate } from 'react-router-dom'; 
 
 const BookList = () => {
   const [books, setBooks] = useState([]);

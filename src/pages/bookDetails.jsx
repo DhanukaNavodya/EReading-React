@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FaSave } from 'react-icons/fa';
-import { db } from '../firebase'; // Import the Firebase configuration
+import { db } from '../firebase'; 
 import { collection, addDoc } from 'firebase/firestore';
-import Swal from 'sweetalert2'; // Import SweetAlert2
+import Swal from 'sweetalert2'; 
 
 const BookDetails = () => {
   const location = useLocation();
-  const { book } = location.state || {}; // Safely access book from state
+  const { book } = location.state || {}; 
   const navigate = useNavigate();
 
   const [user, setUser] = useState(null);

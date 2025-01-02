@@ -3,7 +3,7 @@ import axios from 'axios';
 import { db } from '../firebase';
 import { collection, addDoc } from 'firebase/firestore';
 import { Link, useNavigate } from 'react-router-dom';
-import Swal from 'sweetalert2'; // Import SweetAlert2
+import Swal from 'sweetalert2'; 
 
 const Home = () => {
   const [query, setQuery] = useState('');

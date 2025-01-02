@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
-import { db, collection, getDocs, query, where } from '../firebase'; // Import Firestore functions
-import { useNavigate } from 'react-router-dom'; // For navigation
-import Swal from 'sweetalert2'; // For popups
+import { db, collection, getDocs, query, where } from '../firebase'; 
+import { useNavigate } from 'react-router-dom'; 
+import Swal from 'sweetalert2'; 
 import LoginImg from '../images/login.jpg'
 import { UserContext } from '../context/userContect'; // Import the UserContext
 
