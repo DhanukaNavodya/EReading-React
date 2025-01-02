@@ -64,7 +64,7 @@ const Home = () => {
         confirmButtonText: 'Login Now',
       }).then((result) => {
         if (result.isConfirmed) {
-          navigate('/'); // Redirect to the login page if the user clicks "Login Now"
+          navigate('/signin'); // Redirect to the login page if the user clicks "Login Now"
         }
       });
       return;
