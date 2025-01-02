@@ -97,7 +97,7 @@ const BookList = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold text-center mb-6">Books from Firebase</h1>
+      <h1 className="text-3xl font-bold text-center mb-6">Saved Books</h1>
       {loading ? (
         <p className="text-center">Loading...</p>
       ) : (

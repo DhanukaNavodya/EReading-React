@@ -3,6 +3,7 @@ import axios from 'axios';
 import { db } from '../firebase';
 import { collection, addDoc } from 'firebase/firestore';
 import { Link, useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2'; // Import SweetAlert2
 
 const Home = () => {
   const [query, setQuery] = useState('');
@@ -15,15 +16,12 @@ const Home = () => {
   const API_KEY = 'AIzaSyAW5e9vrRNWxWs8TJwf3itAeXp5urrz13E'; // Replace with your Google Books API key
 
   const [user, setUser] = useState(null);
-  
-    useEffect(() => {
-      const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-  
-      
-  
-      setUser(loggedInUser);
-    }, []);
-  
+
+  useEffect(() => {
+    const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
+    setUser(loggedInUser);
+  }, []);
+
   useEffect(() => {
     // Fetch top-rated books when the component loads
     const fetchTopBooks = async () => {
@@ -58,8 +56,17 @@ const Home = () => {
 
   const handleSaveToFirebase = async (book) => {
     if (!user) {
-      alert('You must be logged in to save a book');
-      navigate('/'); // Redirect to the login page
+      // Trigger SweetAlert2 if the user is not logged in
+      Swal.fire({
+        icon: 'warning',
+        title: 'Login Required',
+        text: 'You must be logged in to save a book.',
+        confirmButtonText: 'Login Now',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          navigate('/'); // Redirect to the login page if the user clicks "Login Now"
+        }
+      });
       return;
     }
 
@@ -70,11 +77,23 @@ const Home = () => {
         description: book.volumeInfo.description || 'No description available',
         image: book.volumeInfo.imageLinks?.thumbnail || '',
         rating: book.volumeInfo.averageRating || 'No rating available',
-        userEmail: user.email, // Store the user ID with the book details
+        userEmail: user.email, // Store the user email with the book details
       });
-      alert('Book saved to Firebase');
+      // Display SweetAlert success message after saving
+      Swal.fire({
+        icon: 'success',
+        title: 'Book Saved',
+        text: 'The book has been saved successfully!',
+        confirmButtonText: 'Ok',
+      });
     } catch (error) {
       console.error('Error saving book', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'There was an issue saving the book.',
+        confirmButtonText: 'Try Again',
+      });
     }
   };
 
@@ -155,9 +174,6 @@ const Home = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <div className="text-center justify-center  mb-6">
-        
-      </div>
       <div className={`flex justify-center mb-6 transition-all ${searchFocused ? 'justify-start' : 'justify-center'}`}>
         <input
           type="text"

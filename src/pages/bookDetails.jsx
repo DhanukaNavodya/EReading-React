@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { FaSave } from 'react-icons/fa';
 import { db } from '../firebase'; // Import the Firebase configuration
 import { collection, addDoc } from 'firebase/firestore';
+import Swal from 'sweetalert2'; // Import SweetAlert2
 
 const BookDetails = () => {
   const location = useLocation();
@@ -24,7 +25,12 @@ const BookDetails = () => {
 
   const handleSaveBook = async () => {
     if (!user) {
-      alert('You must be logged in to save a book');
+      Swal.fire({
+        title: 'Error!',
+        text: 'You must be logged in to save a book',
+        icon: 'error',
+        confirmButtonText: 'Okay'
+      });
       navigate('/'); // Redirect to the login page
       return;
     }
@@ -38,10 +44,21 @@ const BookDetails = () => {
         rating: book.volumeInfo.averageRating || 'No rating available',
         userEmail: user.email, // Store the user email along with the book details
       });
-      alert('Book saved to Firebase');
+      
+      Swal.fire({
+        title: 'Success!',
+        text: 'Book saved to Firebase',
+        icon: 'success',
+        confirmButtonText: 'Great!'
+      });
     } catch (error) {
       console.error('Error saving book', error);
-      alert('Error saving book');
+      Swal.fire({
+        title: 'Error!',
+        text: 'Error saving book',
+        icon: 'error',
+        confirmButtonText: 'Try Again'
+      });
     }
   };
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom'; // for accessing location and navigation
 import { db, doc, getDoc, deleteDoc } from '../firebase'; // Firestore imports
 import { FaTrash } from 'react-icons/fa'; // Import Trash icon from react-icons
+import Swal from 'sweetalert2'; // Import SweetAlert2
 
 const SavedBookDetails = () => {
   const location = useLocation();
@@ -64,15 +65,26 @@ const SavedBookDetails = () => {
   };
 
   const handleDelete = async () => {
-    if (window.confirm('Are you sure you want to delete this book?')) {
+    // Use SweetAlert2 for confirmation
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: 'You won\'t be able to revert this!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'No, keep it',
+    });
+
+    if (result.isConfirmed) {
       try {
         const docRef = doc(db, 'books', bookDetails.id);
         await deleteDoc(docRef);
-        alert('Book deleted successfully');
-        navigate('/'); // Navigate back to the list of books
+        // Show success alert with SweetAlert2
+        Swal.fire('Deleted!', 'The book has been deleted.', 'success');
+        navigate('/books'); // Navigate back to the list of books
       } catch (error) {
         console.error('Error deleting book:', error);
-        alert('Failed to delete the book');
+        Swal.fire('Failed!', 'There was an issue deleting the book.', 'error');
       }
     }
   };
