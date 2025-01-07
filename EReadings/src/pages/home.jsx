@@ -1,21 +1,19 @@
+// Home.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { db } from '../firebase';
 import { collection, addDoc } from 'firebase/firestore';
-import { Link, useNavigate } from 'react-router-dom';
-import Swal from 'sweetalert2'; 
+import Swal from 'sweetalert2';
+import BookCard from '../components/bookCard';
 
 const Home = () => {
   const [query, setQuery] = useState('');
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(false);
   const [topBooks, setTopBooks] = useState([]);
-  const [searchFocused, setSearchFocused] = useState(false); // Track if search box is focused
-  const navigate = useNavigate();
-
-  const API_KEY = 'AIzaSyAW5e9vrRNWxWs8TJwf3itAeXp5urrz13E'; // Replace with your Google Books API key
-
   const [user, setUser] = useState(null);
+
+  const API_KEY = 'AIzaSyAW5e9vrRNWxWs8TJwf3itAeXp5urrz13E';
 
   useEffect(() => {
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
@@ -23,7 +21,6 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
-    // Fetch top-rated books when the component loads
     const fetchTopBooks = async () => {
       setLoading(true);
       const url = `https://www.googleapis.com/books/v1/volumes?q=subject:fiction&orderBy=relevance&maxResults=6&key=${API_KEY}`;
@@ -56,16 +53,11 @@ const Home = () => {
 
   const handleSaveToFirebase = async (book) => {
     if (!user) {
-      // Trigger SweetAlert2 if the user is not logged in
       Swal.fire({
         icon: 'warning',
         title: 'Login Required',
         text: 'You must be logged in to save a book.',
         confirmButtonText: 'Login Now',
-      }).then((result) => {
-        if (result.isConfirmed) {
-          navigate('/signin'); // Redirect to the login page if the user clicks "Login Now"
-        }
       });
       return;
     }
@@ -73,13 +65,12 @@ const Home = () => {
     try {
       await addDoc(collection(db, 'books'), {
         title: book.volumeInfo.title,
-        author: book.volumeInfo.authors ? book.volumeInfo.authors.join(', ') : 'Unknown',
+        author: book.volumeInfo.authors?.join(', ') || 'Unknown',
         description: book.volumeInfo.description || 'No description available',
         image: book.volumeInfo.imageLinks?.thumbnail || '',
         rating: book.volumeInfo.averageRating || 'No rating available',
-        userEmail: user.email, // Store the user email with the book details
+        userEmail: user.email,
       });
-      // Display SweetAlert success message after saving
       Swal.fire({
         icon: 'success',
         title: 'Book Saved',
@@ -97,91 +88,14 @@ const Home = () => {
     }
   };
 
-  const handleBookClick = (book) => {
-    navigate(`/book/${book.id}`, { state: { book } });
-  };
-
-  const renderStars = (rating) => {
-    if (!rating) {
-      // If no rating is available, display 5 empty stars
-      return Array(5)
-        .fill(0)
-        .map((_, index) => (
-          <span key={index} className="text-gray-300">
-            ☆
-          </span>
-        ));
-    }
-
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating - fullStars >= 0.5;
-    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
-
-    return (
-      <>
-        {Array(fullStars)
-          .fill(0)
-          .map((_, index) => (
-            <span key={`full-${index}`} className="text-yellow-500">
-              ★
-            </span>
-          ))}
-        {hasHalfStar && (
-          <span key="half" className="text-yellow-500">
-            ★
-          </span>
-        )}
-        {Array(emptyStars)
-          .fill(0)
-          .map((_, index) => (
-            <span key={`empty-${index}`} className="text-gray-300">
-              ☆
-            </span>
-          ))}
-      </>
-    );
-  };
-
-  const renderBooks = (bookList) =>
-    bookList.map((book) => (
-      <div
-        key={book.id}
-        className="border p-4 rounded cursor-pointer"
-        onClick={() => handleBookClick(book)}
-      >
-        <img
-          src={book.volumeInfo.imageLinks?.thumbnail}
-          alt={book.volumeInfo.title}
-          className="mb-4 w-full h-64 object-cover rounded"
-        />
-        <h3 className="text-xl font-semibold">{book.volumeInfo.title}</h3>
-        <p className="text-gray-700">{book.volumeInfo.authors ? book.volumeInfo.authors.join(', ') : 'Unknown Author'}</p>
-        <p className="text-sm text-gray-600">{book.volumeInfo.description?.slice(0, 100)}...</p>
-        <div className="text-yellow-500 font-bold flex items-center">
-          Rating: {renderStars(book.volumeInfo.averageRating)}
-        </div>
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            handleSaveToFirebase(book);
-          }}
-          className="mt-4 px-4 py-2 bg-green-500 text-white rounded"
-        >
-          Save
-        </button>
-      </div>
-    ));
-
   return (
     <div className="container mx-auto p-4">
-      <div className={`flex justify-center mb-6 transition-all ${searchFocused ? 'justify-start' : 'justify-center'}`}>
+      <div className="flex justify-center mb-6">
         <input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          onFocus={() => setSearchFocused(true)}  // Set the search box as focused
-          onBlur={() => setSearchFocused(false)}   // Reset focus when the search box is unfocused
-          className="border p-2 w-64 transition-all"
+          className="border p-2 w-64"
           placeholder="Enter book name"
         />
         <button
@@ -196,13 +110,27 @@ const Home = () => {
 
       {query ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {renderBooks(books)}
+          {books.map((book) => (
+            <BookCard
+              key={book.id}
+              book={book}
+              user={user}
+              handleSaveToFirebase={handleSaveToFirebase}
+            />
+          ))}
         </div>
       ) : (
         <div>
           <h2 className="text-2xl font-bold text-center mb-4">Top-Rated Books</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {renderBooks(topBooks)}
+            {topBooks.map((book) => (
+              <BookCard
+                key={book.id}
+                book={book}
+                user={user}
+                handleSaveToFirebase={handleSaveToFirebase}
+              />
+            ))}
           </div>
         </div>
       )}
